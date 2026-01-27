@@ -1,0 +1,40 @@
+name: Deploy App to S3
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read # Checkout needs this
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Vite App
+        run: npm run build
+
+      - name: Configure AWS credentials (OIDC)
+        if: success()
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::740263011721:role/GithubS3
+          aws-region: us-east-1
+
+      - name: Deploy to S3
+        if: success()
+        run: aws s3 sync dist s3://ng-tax-calculator --delete
