@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Calculator, Check, Wallet } from "lucide-react";
+import { ArrowRight, Calculator, Check, Info, Wallet, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export default function NGATaxCalculator() {
@@ -25,6 +25,8 @@ export default function NGATaxCalculator() {
     lifeInsurance: 0,
     housingLoanInterest: 0,
   });
+
+  const [showInfo, setShowInfo] = useState(false);
 
   const calculations = useMemo(() => {
     const monthlyGross =
@@ -103,7 +105,7 @@ export default function NGATaxCalculator() {
     }
 
     // OLD LAW CALCULATION
-    const personalRelief = 0.2 * annualGross + 200000;
+    const personalRelief = 0.2 * annualGross;
     const consolidatedReliefAllowance = Math.max(200000, 0.01 * annualGross);
     const oldLawTaxableIncome =
       annualGross -
@@ -275,10 +277,103 @@ export default function NGATaxCalculator() {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Compare Old vs New Tax Law • Calculate Your Savings
           </p>
-          <div className="inline-block mt-4 px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-semibold">
-            Nigeria Tax Act 2025 - Effective from January 1, 2026
+          <div className="inline-flex items-center gap-3 mt-4">
+            <div className="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-semibold">
+              Nigeria Tax Act 2025 - Effective from January 1, 2026
+            </div>
+            <button
+              onClick={() => setShowInfo(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold hover:bg-blue-200 transition-colors"
+            >
+              <Info className="w-4 h-4" />
+              How it works
+            </button>
           </div>
         </div>
+
+        {showInfo && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-2xl">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-blue-600" />
+                  How Tax is Calculated
+                </h2>
+                <button
+                  onClick={() => setShowInfo(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              <div className="p-6 space-y-6">
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-3 text-lg">Old Law (Current - 2024)</h3>
+                  <div className="space-y-3 text-sm text-gray-700">
+                    <p><strong>Step 1: Calculate Gross Income</strong><br />
+                      Add all salary components (Basic + Housing + Transport + Other Allowances) × 12 months
+                    </p>
+                    <p><strong>Step 2: Calculate Consolidated Relief Allowance (CRA)</strong><br />
+                      CRA = 20% of Gross Income + Higher of (₦200,000 or 1% of Gross Income)
+                    </p>
+                    <p><strong>Step 3: Calculate Pension</strong><br />
+                      Pension = 8% of (Basic + Housing + Transport) × 12
+                    </p>
+                    <p><strong>Step 4: Determine Taxable Income</strong><br />
+                      Taxable Income = Gross Income - CRA - Pension - Other Deductions
+                    </p>
+                    <p><strong>Step 5: Apply Tax Brackets</strong></p>
+                    <div className="bg-gray-50 p-3 rounded-lg text-xs space-y-1">
+                      <div>First ₦300,000 → 7%</div>
+                      <div>Next ₦300,000 → 11%</div>
+                      <div>Next ₦500,000 → 15%</div>
+                      <div>Next ₦500,000 → 19%</div>
+                      <div>Next ₦1,600,000 → 21%</div>
+                      <div>Above ₦3,200,000 → 24%</div>
+                    </div>
+                  </div>
+                </div>
+
+                <hr className="border-gray-200" />
+
+                <div>
+                  <h3 className="font-bold text-emerald-700 mb-3 text-lg">New Law (2025 - Effective Jan 2026)</h3>
+                  <div className="space-y-3 text-sm text-gray-700">
+                    <p><strong>Step 1: Calculate Gross Income</strong><br />
+                      Same as old law - all salary components × 12 months
+                    </p>
+                    <p><strong>Step 2: Calculate Pension</strong><br />
+                      Pension = 8% of (Basic + Housing + Transport) × 12
+                    </p>
+                    <p><strong>Step 3: Determine Taxable Income</strong><br />
+                      Taxable Income = Gross Income - Pension - Rent Relief - Other Deductions<br />
+                      <span className="text-emerald-600">(No CRA in new law - replaced by ₦800,000 tax-free threshold)</span>
+                    </p>
+                    <p><strong>Step 4: Apply Tax Brackets</strong></p>
+                    <div className="bg-emerald-50 p-3 rounded-lg text-xs space-y-1">
+                      <div className="text-emerald-700 font-semibold">First ₦800,000 → 0% (Tax Free!)</div>
+                      <div>Next ₦2,200,000 → 15%</div>
+                      <div>Next ₦12,000,000 → 18%</div>
+                      <div>Next ₦10,000,000 → 21%</div>
+                      <div>Next ₦25,000,000 → 23%</div>
+                      <div>Above ₦50,000,000 → 25%</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-bold text-blue-800 mb-2">Key Differences</h4>
+                  <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                    <li>New law has ₦800,000 tax-free threshold (vs CRA in old law)</li>
+                    <li>New law includes Rent Relief up to ₦500,000</li>
+                    <li>New law has fewer but wider tax brackets</li>
+                    <li>Lower earners benefit more from the new law</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {calculations.savings.monthlyTax > 0 && (
           <div className="mb-8 animate-fade-in stagger-1">
